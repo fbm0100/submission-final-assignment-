@@ -1,0 +1,102 @@
+---
+title: YAML
+author: Fumilayo Moustapha ANA 515 Assignment  2
+date: 2022
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r ,include=FALSE}
+library(ranger)
+library(caret)
+library(data.table)
+```
+
+GOAL: 
+The aim of this R project is to build a classifier that can detect credit card fraudulent transactions. We will use a variety of machine learning algorithms that will be able to discern fraudulent from non-fraudulent one. By the end of this machine learning project, you will learn how to implement machine learning algorithms to perform classification.
+
+
+ DATA RETRIEVE AND VIEW OF DATA 
+dataset retrieve from data flair project website and data set was reteive from the project 
+```{r, include=FALSE}
+library(readr)
+creditcard_data <- read.csv("/Users/sarah/Downloads/creditcard.csv")
+```
+4 description of data 
+we can see from the summary , that the min is 0.00, the 1 st Quartile is 5.60 , while the median is 22.00 and the mean being 88.35 . The 3rd Quartile is 77.17 which is relatively higher than the first Quartile and the max being 25691.16. 
+ 
+ 
+```{r,include=FALSE}
+dim(creditcard_data)
+head(creditcard_data,6)
+tail(creditcard_data,6)
+table(creditcard_data$Class)
+summary(creditcard_data)
+summary(creditcard_data$Amount)
+names(creditcard_data)
+var(creditcard_data$Amount)
+sd(creditcard_data$Amount)
+
+```
+
+
+```{r,include=FALSE}
+head(creditcard_data)
+creditcard_data$Amount=scale(creditcard_data$Amount)
+NewData=creditcard_data[,-c(1)]
+head(NewData)
+```
+5 DATA PREPARATION 
+For our data we want to run the logistic regression model to predict the fraudelent transaction  so we divide our data into two subset based on spilt ratio 0.8  and name the two dataset  as train_data and test_ data  and we describe the dimension of the both data which are equal so that we can run and perform the logistics regression on one dataset easily 
+
+```{r,echo=TRUE}
+library(caTools)
+set.seed(123)
+data_sample = sample.split(NewData$Class,SplitRatio=0.80)
+train_data = subset(NewData,data_sample==TRUE)
+test_data = subset(NewData,data_sample==FALSE)
+dim(train_data)
+dim(test_data)
+```
+6  WE RUN THE LOGISTICS REGRESSION  on our data because we want to acheivew that which transaction looks fraudelent in the batch of 6 month period and we apply the binary logistics model on our data.
+```{r, echo=TRUE}
+Logistic_Model=glm(Class~.,test_data,family=binomial())
+```
+7  SUMMARY 
+we first observe the deviance residuals of the class of the trasaction that will access the fitting of the model so we say that 5 number summary of the model as the deviation of residual is minimum = -4.9019 and first quartile is -0.0254 and median is -0.0156 and the max is 4.0877 so the range is about 9.7096 which means the data have less deviation from the mean.we see the coefficient of different algorithm which is used to predict the fraudlent activity so we can say that  all coefficient are insignificant while V8 observe some fraudlent trasaction which look significant  in the model.
+
+```{r, echo=FALSE}
+summary(Logistic_Model)
+```
+PLOTTING 
+we also plot the regression model below and we see different plots 
+first plot is residual vs fitted values which shows the predicted value is normal 
+second plot shows the normality of the predicted values which look normal and the straight constant line is observed,
+3rd plot is the scale location of the plot and we have seen all the predicted value of the data is near to the scale value which means there is no fraudelent activity is visible  in any transaction 
+there is no missing value so the 4th plot is not applicable and the 
+5th plot is the plott which observed the residuals value vs leverage as the value are near to each other so we have not see leverages 
+
+```{r, echo=FALSE}
+plot(Logistic_Model)
+```
+```{r, echo=FALSE}
+library(rpart)
+library(rpart.plot)
+decisionTree_model <- rpart(Class ~ . , creditcard_data, method = 'class')
+predicted_val <- predict(decisionTree_model, creditcard_data, type = 'class')
+probability <- predict(decisionTree_model, creditcard_data, type = 'prob')
+rpart.plot(decisionTree_model)
+```
+ 
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
